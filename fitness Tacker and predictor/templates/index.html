@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #8e2de2, #4a00e0); /* Beautiful gradient background */
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .container:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #007bff;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        h3, h4 {
+            color: #555;
+            margin-top: 20px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input, select {
+            background-color: #fafafa;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .history {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e6e6e6;
+        }
+        .history table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history th, .history td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        .history th {
+            background-color: #f2f2f2;
+        }
+        .history tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        canvas {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        footer {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 50px;
+        }
+        footer a {
+            color: #f8f9fa;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /*Styles for the Diet Plan Cards */
+        .diet-plans {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+        .card {
+            width: 45%;
+            padding: 20px;
+            background-color: #f4f4f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card h3 {
+            color: #333;
+            font-size: 24px;
+        }
+        .card p {
+            font-size: 16px;
+            color: #666;
+            margin-top: 15px;
+        }
+        .card .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .card .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Fitness Tracker</h2>
+        <form action="/index" method="POST">
+            <select name="activity" required>
+                <option value="">Select Activity</option>
+                <option value="running">Running</option>
+                <option value="cycling">Cycling</option>
+                <option value="swimming">Swimming</option>
+            </select>
+            <input type="number" name="weight" placeholder="Weight (kg)" step="0.1" required>
+            <input type="number" name="duration" placeholder="Duration (hrs)" step="0.1" required>
+            <button type="submit">Calculate</button>
+        </form>
+
+        {% if prediction %}
+        <h3>Prediction:</h3>
+        <p style="font-size: 18px; color: #007bff;">Calories burned: <strong>{{ prediction }} kcal</strong></p>
+        {% endif %}
+
+        <div class="history">
+            <h3>Activity History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Weight (kg)</th>
+                        <th>Duration (hrs)</th>
+                        <th>Calories Burned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr>
+                        <td>{{ activity.activity }}</td>
+                        <td>{{ activity.weight }}</td>
+                        <td>{{ activity.duration }}</td>
+                        <td>{{ activity.calories }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Activity Analysis</h3>
+        <canvas id="pieChart"></canvas>
+        <canvas id="lineChart"></canvas>
+
+        <div>
+            <h4>Average Calories Burned: <strong>{{ avg_calories }} kcal</strong></h4>
+        </div>
+
+        <!-- Diet Plan Cards-->
+        <div class="diet-plans">
+            <div class="card">
+                <h3>Diet Plan for Weight Loss</h3>
+                <p>Follow a balanced, calorie-restricted diet with high protein and low carbs. Focus on vegetables, fruits, lean meats, and whole grains.</p>
+                <button class="btn">Learn More</button>
+            </div>
+            <div class="card">
+                <h3>Diet Plan for Weight Gain</h3>
+                <p>Increase calorie intake with nutrient-dense foods like nuts, seeds, lean meats, whole grains, and healthy fats. Focus on muscle-building foods.</p>
+                <button class="btn">Learn More</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Fitness Tracker | <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+       
+        const activities = {{ activities | tojson }};
+        console.log("Activities data:", activities);
+
+        const caloriesData = activities.map(activity => activity.calories);
+        const activityTypes = activities.map(activity => activity.activity);
+
+        const pieData = {
+            labels: ['Running', 'Cycling', 'Swimming'],
+            datasets: [{
+                label: 'Activity Distribution',
+                data: [
+                    activities.filter(a => a.activity === 'running').length,
+                    activities.filter(a => a.activity === 'cycling').length,
+                    activities.filter(a => a.activity === 'swimming').length
+                ],
+                backgroundColor: ['#FF5733', '#33FF57', '#3357FF'],
+            }]
+        };
+
+        const lineData = {
+            labels: activities.map((_, index) => `Activity ${index + 1}`),
+            datasets: [{
+                label: 'Calories Burned Over Time',
+                data: caloriesData,
+                fill: false,
+                borderColor: '#007bff',
+                tension: 0.1
+            }]
+        };
+
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: pieData
+        });
+
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: lineData
+        });
+    </script>
+</body>
+</html>
