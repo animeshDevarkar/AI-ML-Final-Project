@@ -1,1 +1,1 @@
-Basic Aiml project which using knowledge learned in compozent internship
+Basic Aiml project using knowledge learned in compozent internship
